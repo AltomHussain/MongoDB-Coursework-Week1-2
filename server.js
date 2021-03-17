@@ -119,31 +119,39 @@ app.put("/api/books/:id", (req, res) => {
     const db = client.db("Literatures");
     const collection = db.collection("books");
     const string = req.params.id;
-    const id = mongodb.ObjectID(string);
-    const {
-      title,
-      author,
-      author_birth_year,
-      author_death_year,
-      url,
-    } = req.body;
+     const id = mongodb.ObjectID(string);
 
+    const { title, author, brirthYear, deathYear, url } = req.body;
     const searchObj = {
       _id: id,
     };
+  
     const updateObj = {
       $set: {
         title,
         author,
-        author_birth_year,
-        author_death_year,
+        brirthYear,
+        deathYear,
         url,
       },
     };
 
     const options = { returnOriginal: true };
+ collection.findOneAndUpdate(searchObj, updateObj, options, (error, result)=>{
+    if(!mongodb.ObjectID.isValid(id)){
+      res.status(400).json("Id is not valid")
+    }
+    if (!searchObj._id) {
+     res.status(404).json("Id not found");
+    }
+
+     res.json(error || result.value)
+    
+ })
+
   });
 });
+
 
 //delete a collection
 app.delete("/api/book/:id", (req, res) => {
